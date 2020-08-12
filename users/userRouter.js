@@ -1,10 +1,14 @@
 const express = require("express");
 const userDb = require("./userDb.js");
+const postDb = require("../posts/postDb.js");
 
 const { validateUserId } = require("../middleware/validateUserId");
+const { validateUser } = require("../middleware/validateUser");
+const { validatePost } = require("../middleware/validatePost");
 
 const router = express.Router();
 
+// Returns a list of users
 router.get("/", (req, res) => {
   // do your magic!
   try {
@@ -16,18 +20,22 @@ router.get("/", (req, res) => {
   }
 });
 
+// Returns user by ID
 router.get("/:id", validateUserId(), (req, res) => {
   // do your magic!
   res.status(200).json(req.user);
 });
 
+// Returns list of Posts by user ID
 router.get("/:id/posts", validateUserId(), (req, res) => {
   // do your magic!
   const userId = req.params.id;
   try {
     userDb.getUserPosts(userId).then((userPosts) => {
       if (userPosts.length === 0) {
-        return res.status(404).json({ message: "User has no posts" });
+        return res
+          .status(404)
+          .json({ message: "Could not retrieve user posts" });
       } else {
         return res.status(200).json(userPosts);
       }
@@ -37,50 +45,73 @@ router.get("/:id/posts", validateUserId(), (req, res) => {
   }
 });
 
-router.post("/", (req, res) => {
+// Creates new user
+router.post("/", validateUser(), (req, res) => {
   // do your magic!
+  const newUser = {
+    name: req.body.name,
+  };
   try {
-  } catch {}
+    userDb.insert(newUser).then((user) => {
+      return res.status(200).json(user);
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Error creating new user" });
+  }
 });
 
-router.post("/:id/posts", (req, res) => {
+// Creates new post by userId
+router.post("/:id/posts", validateUserId(), validatePost(), (req, res) => {
   // do your magic!
+  const newPost = {
+    text: req.body.text,
+    user_id: req.params.id,
+  };
   try {
-  } catch {}
+    postDb.insert(newPost).then((post) => {
+      return res.status(200).json(post);
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Error creating new post" });
+  }
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateUserId(), (req, res) => {
   // do your magic!
+  const id = req.params.id;
   try {
-  } catch {}
+    userDb.remove(id).then(() => {
+      return res.status(200).json({ message: "User deleted" });
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Error deleting user" });
+  }
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", validateUserId(), validateUser(), (req, res) => {
   // do your magic!
+  const id = req.params.id;
+  const updateUser = {
+    name: req.body.name,
+  };
   try {
-  } catch {}
+    userDb.update(id, updateUser).then((user) => {
+      return res.status(200).json(user);
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Error updating user" });
+  }
 });
 
-//custom middleware
+//    custom middleware
 
-// function validateUserId(req, res, next) {
-//   // do your magic!
-//   users.getById(req.params.id).then((user) => {
-//     if (user) {
-//       req.user = user;
-//       next();
-//     } else {
-//       res.status(400).json({ message: "invalid user id" });
-//     }
-//   });
-// }
-
-function validateUser(req, res, next) {
-  // do your magic!
-}
-
-function validatePost(req, res, next) {
-  // do your magic!
-}
+//    Moved to ../middleware/ folder
 
 module.exports = router;
+
+// const db = required(database)
+
+// server.get(async (req, res) => {
+//   const postsPromise = db.find()
+//   const usersPormiss = db.find()
+// })

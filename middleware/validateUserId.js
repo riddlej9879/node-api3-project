@@ -12,7 +12,7 @@ function validateUserId() {
           next();
         } else {
           res.status(404).json({
-            message: "User not found",
+            message: "Invalid user id",
           });
         }
       })
