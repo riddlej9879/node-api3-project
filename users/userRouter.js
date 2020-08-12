@@ -78,9 +78,9 @@ router.post("/:id/posts", validateUserId(), validatePost(), (req, res) => {
 
 router.delete("/:id", validateUserId(), (req, res) => {
   // do your magic!
-  const id = req.params.id;
+  const userId = req.params.id;
   try {
-    userDb.remove(id).then(() => {
+    userDb.remove(userId).then(() => {
       return res.status(200).json({ message: "User deleted" });
     });
   } catch (err) {
