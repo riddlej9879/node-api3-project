@@ -53,7 +53,7 @@ router.post("/", validateUser(), (req, res) => {
   };
   try {
     userDb.insert(newUser).then((user) => {
-      return res.status(200).json(user);
+      return res.status(201).json(user);
     });
   } catch (err) {
     return res.status(500).json({ message: "Error creating new user" });
@@ -69,7 +69,7 @@ router.post("/:id/posts", validateUserId(), validatePost(), (req, res) => {
   };
   try {
     postDb.insert(newPost).then((post) => {
-      return res.status(200).json(post);
+      return res.status(201).json(post);
     });
   } catch (err) {
     return res.status(500).json({ message: "Error creating new post" });
@@ -96,7 +96,7 @@ router.put("/:id", validateUserId(), validateUser(), (req, res) => {
   };
   try {
     userDb.update(id, updateUser).then((user) => {
-      return res.status(200).json(user);
+      return res.status(202).json(user);
     });
   } catch (err) {
     return res.status(500).json({ message: "Error updating user" });
